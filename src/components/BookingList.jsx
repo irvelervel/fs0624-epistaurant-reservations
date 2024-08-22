@@ -16,7 +16,7 @@
 // più vuoto, e una alla volta crea le righe della lista
 
 import { Component } from 'react'
-import { Container, Row, Col, ListGroup, Spinner } from 'react-bootstrap'
+import { Container, Row, Col, ListGroup, Spinner, Alert } from 'react-bootstrap'
 
 class BookingList extends Component {
   state = {
@@ -24,6 +24,7 @@ class BookingList extends Component {
     // per questo motivo inizializzo la proprietà dello stato in cui le salverò
     // come un ARRAY VUOTO
     isLoading: true,
+    isError: false,
   }
 
   // tutti i nostri metodi personalizzati all'interno della classe devono
@@ -79,6 +80,11 @@ class BookingList extends Component {
       .catch((err) => {
         // finale cattivo :( problema di rete?
         console.log('ERRORE NEL RECUPERO DATI (internet)?', err)
+        // spegniamo lo spinner anche qua!
+        this.setState({
+          isLoading: false, // spegniamo lo spinner
+          isError: true, // accendiamo l'errore
+        })
       })
   }
 
@@ -96,19 +102,31 @@ class BookingList extends Component {
               {this.state.isLoading && (
                 <Spinner animation="border" variant="info" />
               )}
+              {this.state.isError && (
+                <Alert variant="danger">
+                  Oops! Qualcosa è andato storto 😱
+                  <i className="bi bi-exclamation-triangle"></i>
+                </Alert>
+              )}
             </div>
             <ListGroup>
               {/* impostiamo ora le regole del nostro componente React! */}
               {/* colleghiamo l'INTERFACCIA <--> DATI */}
-              {this.state.reservations.map((res) => {
-                return (
-                  // non dimentichiamo la prop KEY, indispensabile
-                  // per mantenere alte le performance anche su migliaia di elementi
-                  <ListGroup.Item key={res._id}>
-                    {res.name} per {res.numberOfPeople}
-                  </ListGroup.Item>
-                )
-              })}
+              {!this.state.isLoading && this.state.reservations.length === 0 ? (
+                <ListGroup.Item>
+                  Al momento non è presente nessuna prenotazione :(
+                </ListGroup.Item>
+              ) : (
+                this.state.reservations.map((res) => {
+                  return (
+                    // non dimentichiamo la prop KEY, indispensabile
+                    // per mantenere alte le performance anche su migliaia di elementi
+                    <ListGroup.Item key={res._id}>
+                      {res.name} per {res.numberOfPeople}
+                    </ListGroup.Item>
+                  )
+                })
+              )}
             </ListGroup>
           </Col>
         </Row>
