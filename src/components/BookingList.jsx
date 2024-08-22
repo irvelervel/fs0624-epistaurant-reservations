@@ -4,14 +4,26 @@
 // oggi il nostro obiettivo è mostrare le prenotazioni esistenti nelle API
 // all'avvio del nostro componente BookingList
 
+// FLUSSO DI ESECUZIONE
+// 1) LO STATO INIZIALE DEL COMPONENTE È SETTATO AD ARRAY VUOTO
+// 2) PRIMO RENDER: vengono disegnate le parti STATICHE dell'interfaccia, e viene
+// mappato l'array vuoto dello stato
+// 3) dopo il primo render, viene eseguito COMPONENTDIDMOUNT, che effettua la fetch
+// e RIEMPIE this.state.reservations
+// 4) poichè è cambiato lo stato, react -IN AUTOMATICO- re-invoca render()
+// 5) render() viene ri-eseguito riga per riga, tralascia le parti già presenti nel DOM
+// e si ritrova a dover ri-mappare l'array: trova che a questo punto l'array non è
+// più vuoto, e una alla volta crea le righe della lista
+
 import { Component } from 'react'
-import { Container, Row, Col, ListGroup } from 'react-bootstrap'
+import { Container, Row, Col, ListGroup, Spinner } from 'react-bootstrap'
 
 class BookingList extends Component {
   state = {
     reservations: [], // so già che recupererò dalle API un array di prenotazioni
     // per questo motivo inizializzo la proprietà dello stato in cui le salverò
     // come un ARRAY VUOTO
+    isLoading: true,
   }
 
   // tutti i nostri metodi personalizzati all'interno della classe devono
@@ -20,6 +32,7 @@ class BookingList extends Component {
   // dell'ambiente circostante)
 
   componentDidMount = () => {
+    console.log('SONO IN COMPONENTDIDMOUNT')
     // si deve chiamare esattamente "componentDidMount"
 
     // è il metodo nei componenti a classe che si occupa di recuperare dati
@@ -54,6 +67,7 @@ class BookingList extends Component {
         console.log('PRENOTAZIONI RECUPERATE DAL SERVER', arrayOfReservations)
         this.setState({
           reservations: arrayOfReservations,
+          isLoading: false,
           // salva l'array di prenotazioni nello stato, prendendo il posto
           // dell'array vuoto con cui avevamo inizializzato il componente
 
@@ -78,6 +92,11 @@ class BookingList extends Component {
         <Row className="justify-content-center my-4">
           <Col xs={12} md={6}>
             <h2 className="text-center mb-3">Prenotazioni esistenti</h2>
+            <div className="d-flex justify-content-center mb-3">
+              {this.state.isLoading && (
+                <Spinner animation="border" variant="info" />
+              )}
+            </div>
             <ListGroup>
               {/* impostiamo ora le regole del nostro componente React! */}
               {/* colleghiamo l'INTERFACCIA <--> DATI */}

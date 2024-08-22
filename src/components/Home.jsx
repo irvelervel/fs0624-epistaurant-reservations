@@ -27,7 +27,7 @@ class Home extends Component {
           <Col xs={12} md={6}>
             <Carousel
               onSlide={(i) => {
-                console.log('SLIDE CAMBIATA!', i)
+                // console.log('SLIDE CAMBIATA!', i)
                 // la prossima activePasta è pastasciutte[i]
                 // dobbiamo settare lo stato del componente Home con pastasciutte[i]
                 // come nuova activeSlide
